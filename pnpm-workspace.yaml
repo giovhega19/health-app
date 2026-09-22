@@ -1,0 +1,39 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+# Expo/Metro esperan resolver módulos nativos con un layout de node_modules
+# "plano" (como el de npm/yarn classic). El linking simbólico por defecto de
+# pnpm rompe el resolver de Metro para paquetes con código nativo (problema
+# conocido del ecosistema Expo + pnpm). En pnpm 10+ este ajuste se declara a
+# nivel de workspace (pnpm-workspace.yaml), no en .npmrc.
+nodeLinker: hoisted
+allowBuilds:
+  # @parcel/watcher trae un binario nativo precompilado para observar el
+  # sistema de archivos (lo usa Jest en modo --watch).
+  '@parcel/watcher': true
+  # esbuild trae un script postinstall que descarga su binario nativo
+  # precompilado; lo necesitan orval (packages/api-contract) y Metro.
+  esbuild: true
+  # msw genera su service worker de mock (mockServiceWorker.js) en
+  # postinstall; no se usa en Node/Jest pero es inofensivo dejarlo correr.
+  msw: true
+  # unrs-resolver trae un binario nativo precompilado para el resolver de
+  # módulos usado por ESLint (eslint-import-resolver / oxc); necesario para
+  # que `pnpm lint` funcione en apps/mobile.
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - '@orval/angular@8.36.0'
+  - '@orval/axios@8.36.0'
+  - '@orval/core@8.36.0'
+  - '@orval/effect@8.36.0'
+  - '@orval/fetch@8.36.0'
+  - '@orval/hono@8.36.0'
+  - '@orval/mcp@8.36.0'
+  - '@orval/mock@8.36.0'
+  - '@orval/pinia-colada@8.36.0'
+  - '@orval/query@8.36.0'
+  - '@orval/solid-start@8.36.0'
+  - '@orval/swr@8.36.0'
+  - '@orval/zod@8.36.0'
+  - '@redocly/cli@2.54.2'
+  - orval@8.36.0

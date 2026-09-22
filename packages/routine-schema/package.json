@@ -1,0 +1,6 @@
+{
+  "name": "@fitapp/routine-schema",
+  "private": true,
+  "version": "1.0.0",
+  "description": "JSON Schema de importación/exportación de rutinas de FitApp (.fitroutine.json)."
+}

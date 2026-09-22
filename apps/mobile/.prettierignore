@@ -1,0 +1,9 @@
+node_modules
+.expo
+dist
+coverage
+android
+ios
+# Código generado por orval (T11); se regenera desde openapi.yaml, no se
+# formatea/edita a mano.
+src/shared/infrastructure/http/generated
