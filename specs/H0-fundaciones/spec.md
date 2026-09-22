@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Tipo | Infraestructura (no es una funcionalidad de usuario Fxx) |
-| Estado | Borrador → Aprobado |
+| Estado | Aprobado — cerrado el 2026-09-22 (PR [#1](https://github.com/giovhega19/health-app/pull/1)) |
 | Relacionado | ADR-001 a ADR-007, `04-arquitectura.md` §2, §3, §4, §5 |
 | Módulos | Monorepo completo (raíz, `apps/mobile`, `backend`, `packages/*`, CI) |
 | Depende de | — (es el primer hito) |

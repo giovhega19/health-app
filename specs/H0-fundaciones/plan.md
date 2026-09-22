@@ -2,6 +2,8 @@
 
 > Generado por `arquitecto` a partir de `spec.md` (2026-09-22). No se inicia la implementación sin aprobación.
 >
+> **Estado: ejecutado y cerrado el 2026-09-22** (Paso 1 y Paso 2 completos, ver PR [#1](https://github.com/giovhega19/health-app/pull/1)).
+>
 > Este plan cubre **dos pasos**: el Paso 1 (documentación, ADR-001 a ADR-007 y este propio conjunto spec/plan/tasks) se ejecuta ahora. El **Paso 2 (scaffold real)** descrito en detalle en las secciones siguientes se ejecuta en una **ronda posterior**, por los agentes `dev-mobile-rn` y `dev-backend-java`, una vez aprobados `spec.md`, `plan.md` y `tasks.md`.
 
 ## 1. Resumen de la solución
