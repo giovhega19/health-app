@@ -33,7 +33,7 @@ jobs:
         run: pnpm --filter @fitapp/mobile run typecheck
 
       - name: Test (with coverage)
-        run: pnpm --filter @fitapp/mobile run test -- --coverage
+        run: pnpm --filter @fitapp/mobile test --coverage
 
       - name: Architecture check
         run: pnpm --filter @fitapp/mobile run arch:check
