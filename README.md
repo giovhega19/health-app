@@ -1,7 +1,5 @@
 # FitApp — Paquete de especificaciones (Spec-Driven Development)
 
-> **FitApp** es un nombre en clave. Reemplácelo cuando se defina la marca.
-
 App móvil multiplataforma (iOS y Android) de salud y ejercicio diario. El usuario puede:
 
 - usar rutinas predefinidas o crear e importar las suyas según su objetivo;
@@ -95,15 +93,15 @@ Los archivos de `agents/` usan el formato de subagentes de Claude Code (frontmat
 | `seguridad-privacidad` | Revisa datos de salud, OWASP MASVS y la Ley 1581 |
 | `release-tiendas` | Gestiona builds, versiones, CI/CD y publicación en tiendas |
 
-## 5. Decisiones abiertas (confirmar con el dueño del producto)
+## 5. Decisiones del producto (confirmadas por el dueño del producto)
 
-| # | Decisión | Propuesta por defecto |
+| # | Decisión | Resolución |
 |---|---|---|
-| D1 | Nombre y marca de la app | Pendiente |
+| D1 | Nombre y marca de la app | FitApp |
 | D2 | Edad mínima de uso | 16 años (evita el régimen de datos de menores) |
 | D3 | Mascota en el MVP | Sí, versión básica con 5 estados (ver F09) |
 | D4 | Temas en el MVP | Claro, oscuro, sistema y 4 colores de acento. La personalización completa llega en v1.1 |
-| D5 | Proveedor de hosting del backend | Contenedor Docker en cualquier nube (AWS, GCP, Render o Fly) |
+| D5 | Proveedor de hosting del backend | Se decidirá más adelante (ADR pendiente). La containerización con Docker ya está definida en `04-arquitectura.md`; el proveedor de nube queda abierto |
 | D6 | Monetización | Gratuita en el MVP; freemium a evaluar en v3 |
 | D7 | Idiomas | Español en el MVP; inglés en v1.1 (i18n listo desde el día 1) |
 | D8 | Login social (Google/Apple) | v1.1. Si se agrega Google en iOS, es obligatorio ofrecer también Iniciar sesión con Apple |

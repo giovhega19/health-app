@@ -1,0 +1,14 @@
+{
+  "name": "fitapp",
+  "private": true,
+  "packageManager": "pnpm@12.5.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "pnpm -r --if-present run lint",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "test": "pnpm -r --if-present run test",
+    "arch:check": "pnpm -r --if-present run arch:check"
+  }
+}

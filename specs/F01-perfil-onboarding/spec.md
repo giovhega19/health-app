@@ -36,7 +36,7 @@ Característica: Onboarding y perfil
     Y veo mi plan semanal propuesto en la pantalla de inicio
 
   Escenario: CA-01.03.1 Edad derivada y mínima
-    Dado que ingreso una fecha de nacimiento que da una edad menor a la mínima (D2)
+    Dado que ingreso una fecha de nacimiento que da una edad menor a 16 años (mínimo definido en D2)
     Cuando intento continuar
     Entonces veo un mensaje que indica que la app requiere la edad mínima
     Y no puedo avanzar
@@ -91,6 +91,7 @@ TMB de referencia: 10·60 + 6,25·165 − 5·30 − 161 = 1320,25 → 1320.
 ## Validaciones
 | Campo | Regla |
 |---|---|
+| Edad | ≥ 16 años (D2) |
 | Estatura | 100–250 cm |
 | Peso | 25–350 kg |
 | Contraseña | ≥ 8 caracteres; no puede estar en una lista de contraseñas comunes |
@@ -110,5 +111,4 @@ TMB de referencia: 10·60 + 6,25·165 − 5·30 − 161 = 1320,25 → 1320.
 Login social (v1.1) y exportación de datos (v1.1).
 
 ## Preguntas abiertas
-- D2: edad mínima definitiva.
 - ¿Se pide el peso objetivo en el onboarding o después?

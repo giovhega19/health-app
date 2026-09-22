@@ -75,7 +75,7 @@ classDiagram
 ## 2. Reglas de negocio (RN)
 
 ### RN-01 Edad
-`edad = años completos entre birthDate y hoy`. Edad mínima de uso según la decisión D2 (16 por defecto). Por debajo del mínimo se bloquea el registro con un mensaje amable.
+`edad = años completos entre birthDate y hoy`. Edad mínima de uso: 16 años (decisión D2, confirmada). Por debajo del mínimo se bloquea el registro con un mensaje amable.
 
 ### RN-02 IMC (índice de masa corporal)
 `IMC = pesoKg / (estaturaM)²`, redondeado a 1 decimal. Categorías de la OMS para adultos:

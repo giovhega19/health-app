@@ -1,0 +1,11 @@
+# Minimal configuration for H0. No datasource / PostgreSQL / credentials yet:
+# those are added contract-first as part of F01's technical plan
+# (see specs/H0-fundaciones/plan.md §4).
+spring:
+  application:
+    name: fitapp-backend
+  profiles:
+    default: dev
+
+server:
+  port: 8080

@@ -62,7 +62,7 @@ flowchart TB
 | Mapeo | MapStruct |
 | Pruebas | JUnit 5, AssertJ, Mockito, **Testcontainers**, **ArchUnit**, Spring Modulith Test, JaCoCo |
 | Observabilidad | Micrometer + Prometheus, logs JSON, Sentry |
-| Despliegue | Docker; cualquier nube (decisión D5) |
+| Despliegue | Docker (contenedor confirmado); proveedor de nube por decidir — D5 diferida a un ADR posterior (ver README §5) |
 
 ## 3. Arquitectura de la app móvil
 
@@ -198,4 +198,4 @@ Entornos: `dev` (local con Docker Compose), `staging` y `production`. Los secret
 | ADR-004 | OpenAPI contract-first y cliente generado |
 | ADR-005 | Motor de temporizador basado en marcas de tiempo absolutas |
 | ADR-006 | Zustand + TanStack Query para el estado |
-| ADR-007 | Sincronización last-write-wins por campo con `updatedAt` y soft delete |
+| ADR-007 | Sincronización last-write-wins por entidad con `updatedAt` y soft delete |

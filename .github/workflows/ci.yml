@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  mobile:
+    name: Mobile (lint, typecheck, test, arch:check)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter @fitapp/mobile run lint
+
+      - name: Typecheck
+        run: pnpm --filter @fitapp/mobile run typecheck
+
+      - name: Test (with coverage)
+        run: pnpm --filter @fitapp/mobile test --coverage
+
+      - name: Architecture check
+        run: pnpm --filter @fitapp/mobile run arch:check
+
+  backend:
+    name: Backend (./gradlew check)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Make gradlew executable
+        working-directory: backend
+        run: chmod +x gradlew
+
+      - name: Run check
+        working-directory: backend
+        run: ./gradlew check
+
+  contract:
+    name: API contract (lint, generate, drift check)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate contract
+        run: pnpm --filter @fitapp/api-contract run validate
