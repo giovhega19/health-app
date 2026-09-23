@@ -1,0 +1,26 @@
+# Minimal local development datastore for the FitApp backend (F01/F02, H1).
+# NOT for production: no cloud provider is assumed here (D5 stays deferred,
+# see 04-arquitectura.md §2 "Despliegue"). Integration tests do not depend on
+# this file: they start their own disposable PostgreSQL via Testcontainers.
+#
+# Usage: `docker compose up -d` from this directory, then run the app with
+# the `dev` profile (default) — see src/main/resources/application.yml.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: fitapp
+      POSTGRES_USER: fitapp
+      POSTGRES_PASSWORD: fitapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - fitapp-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fitapp -d fitapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  fitapp-postgres-data:

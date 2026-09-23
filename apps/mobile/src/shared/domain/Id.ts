@@ -14,6 +14,8 @@
  * tiempo desde el puerto `Clock` en vez de leerlo directamente, por ejemplo:
  * `generateId(clock: Clock): Id`.
  */
+import type { Clock } from "./Clock";
+
 export type Id = string & { readonly __brand: "Id" };
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -27,4 +29,24 @@ export function asId(value: string): Id {
     throw new Error(`"${value}" no es un Id (UUID) válido.`);
   }
   return value;
+}
+
+let generateIdCallCount = 0;
+
+/**
+ * Generador de `Id` determinista basado en el puerto `Clock` (H1+, ver el
+ * comentario superior de este archivo): el dominio/aplicación nunca lee la
+ * hora directamente (Art. 2.4), así que el "tiempo" que ordena estos IDs
+ * llega siempre por parámetro. No es un UUIDv7 conforme al RFC todavía (eso
+ * queda para cuando `06-contratos-api.md` lo exija de forma estricta contra
+ * el backend): combina la hora del reloj con un contador incremental para
+ * garantizar unicidad dentro del mismo proceso.
+ */
+export function generateId(clock: Clock): Id {
+  generateIdCallCount += 1;
+  const hex = (clock.now().getTime().toString(16) + generateIdCallCount.toString(16))
+    .padStart(32, "0")
+    .slice(-32);
+  const formatted = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+  return asId(formatted);
 }

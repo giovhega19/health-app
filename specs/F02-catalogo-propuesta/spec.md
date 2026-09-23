@@ -3,6 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Versión | MVP 1.0 |
+| Estado | Aprobado — implementado y cerrado el 2026-09-23 (hito H1) |
 | RF | RF-02.01 … RF-02.06 |
 | Reglas | RN-04, RN-07, RN-14 |
 | Módulos | `features/catalog`, backend `catalog` |
@@ -71,3 +72,6 @@ Ofrecer un catálogo confiable y visual de ejercicios y rutinas que funcione sin
 
 ## Fuera de alcance
 Programas de varias semanas (v1.1).
+
+## Preguntas abiertas
+Ninguna pendiente. Resuelta: **CA-02.04.3 vs. secuencia de hitos** — el escenario dice que al aceptar la propuesta "las rutinas se copian a 'Mis rutinas' y se crean los `ScheduleSlot`". Esa persistencia depende de los módulos `routines` (F03) y `scheduling` (F04), planificados para el hito H2 (`01-vision-alcance-roadmap.md` §7), posterior a H1 (donde se planifican F01 y F02). **Confirmado por el dueño del producto (2026-09-22):** en H1, `AcceptProposal` genera y ajusta el plan y emite el evento de dominio `ProposalAccepted` con el plan completo; la escritura real en "Mis rutinas"/`ScheduleSlot` queda para cuando F03/F04 añadan un suscriptor de ese evento (H2), sin modificar el código de F02. CA-02.04.3 queda parcialmente verificado al cerrar H1 (generar/ajustar/emitir) y completamente verificado al cerrar H2 (persistencia real).

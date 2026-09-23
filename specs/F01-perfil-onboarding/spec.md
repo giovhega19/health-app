@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Versión | MVP 1.0 |
-| Estado | Borrador → Aprobado |
+| Estado | Aprobado — implementado y cerrado el 2026-09-23 (hito H1) |
 | RF | RF-01.01 … RF-01.08 |
 | Reglas | RN-01, RN-02, RN-03, RN-14 |
 | Depende de | F02 (para mostrar la rutina propuesta) |

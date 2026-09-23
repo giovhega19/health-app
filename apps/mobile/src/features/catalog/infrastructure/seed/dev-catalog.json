@@ -1,0 +1,260 @@
+{
+  "exercises": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "slug": "flexion-de-pecho",
+      "name": "Flexión de pecho",
+      "muscleGroups": ["CHEST"],
+      "equipment": ["NONE"],
+      "difficulty": 1,
+      "mode": "REPS",
+      "met": 3.8,
+      "instructions": [
+        "Apoya las manos al ancho de los hombros y estira las piernas.",
+        "Baja el pecho hacia el suelo manteniendo el cuerpo recto.",
+        "Empuja hasta extender los brazos sin bloquear los codos."
+      ],
+      "commonMistakes": ["Dejar caer la cadera.", "No completar el rango de movimiento."],
+      "imageUrl": "https://cdn.fitapp.test/img/flexion-de-pecho.png",
+      "animationUrl": "https://cdn.fitapp.test/anim/flexion-de-pecho.gif",
+      "videoUrl": "https://cdn.fitapp.test/video/flexion-de-pecho.mp4",
+      "isCustom": false,
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "slug": "remo-con-mancuerna",
+      "name": "Remo con mancuerna",
+      "muscleGroups": ["BACK"],
+      "equipment": ["DUMBBELLS"],
+      "difficulty": 2,
+      "mode": "REPS",
+      "met": 4.5,
+      "instructions": [
+        "Apoya una rodilla y una mano en un banco, espalda recta.",
+        "Sube la mancuerna hasta la cadera llevando el codo hacia atrás.",
+        "Baja de forma controlada hasta extender el brazo."
+      ],
+      "commonMistakes": ["Rotar el tronco.", "Usar impulso en vez de controlar el movimiento."],
+      "imageUrl": "https://cdn.fitapp.test/img/remo-con-mancuerna.png",
+      "animationUrl": "https://cdn.fitapp.test/anim/remo-con-mancuerna.gif",
+      "videoUrl": null,
+      "isCustom": false,
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "slug": "dominadas",
+      "name": "Dominadas",
+      "muscleGroups": ["BACK"],
+      "equipment": ["PULL_UP_BAR"],
+      "difficulty": 3,
+      "mode": "REPS",
+      "met": 8,
+      "instructions": [
+        "Cuelga de la barra con agarre prono al ancho de los hombros.",
+        "Tira hasta que la barbilla supere la barra.",
+        "Baja de forma controlada hasta extender los brazos."
+      ],
+      "commonMistakes": ["Impulsarse con las piernas (kipping).", "No bajar hasta la extensión completa."],
+      "imageUrl": "https://cdn.fitapp.test/img/dominadas.png",
+      "animationUrl": "https://cdn.fitapp.test/anim/dominadas.gif",
+      "videoUrl": null,
+      "isCustom": false,
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "slug": "sentadilla-con-mancuernas",
+      "name": "Sentadilla con mancuernas",
+      "muscleGroups": ["LEGS"],
+      "equipment": ["DUMBBELLS"],
+      "difficulty": 2,
+      "mode": "REPS",
+      "met": 5,
+      "instructions": [
+        "Sostén una mancuerna en cada mano a los lados del cuerpo.",
+        "Flexiona cadera y rodillas bajando el glúteo hacia atrás.",
+        "Empuja con los talones hasta extender las piernas."
+      ],
+      "commonMistakes": ["Dejar que las rodillas colapsen hacia adentro.", "Redondear la espalda baja."],
+      "imageUrl": "https://cdn.fitapp.test/img/sentadilla-con-mancuernas.png",
+      "animationUrl": "https://cdn.fitapp.test/anim/sentadilla-con-mancuernas.gif",
+      "videoUrl": null,
+      "isCustom": false,
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "slug": "zancadas",
+      "name": "Zancadas",
+      "muscleGroups": ["LEGS"],
+      "equipment": ["NONE"],
+      "difficulty": 1,
+      "mode": "REPS",
+      "met": 4,
+      "instructions": [
+        "Da un paso largo hacia adelante.",
+        "Baja la cadera hasta que ambas rodillas formen ~90°.",
+        "Empuja con la pierna delantera para volver a la posición inicial."
+      ],
+      "commonMistakes": ["Adelantar demasiado la rodilla sobre la punta del pie.", "Dar un paso demasiado corto."],
+      "imageUrl": "https://cdn.fitapp.test/img/zancadas.png",
+      "animationUrl": "https://cdn.fitapp.test/anim/zancadas.gif",
+      "videoUrl": null,
+      "isCustom": false,
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "slug": "press-hombro-mancuerna",
+      "name": "Press de hombro con mancuerna",
+      "muscleGroups": ["SHOULDERS"],
+      "equipment": ["DUMBBELLS"],
+      "difficulty": 2,
+      "mode": "REPS",
+      "met": 4.2,
+      "instructions": [
+        "Sostén una mancuerna en cada mano a la altura de los hombros.",
+        "Empuja hacia arriba hasta extender los brazos.",
+        "Baja de forma controlada hasta la posición inicial."
+      ],
+      "commonMistakes": ["Arquear excesivamente la espalda baja.", "No extender completamente los brazos."],
+      "imageUrl": "https://cdn.fitapp.test/img/press-hombro-mancuerna.png",
+      "animationUrl": "https://cdn.fitapp.test/anim/press-hombro-mancuerna.gif",
+      "videoUrl": null,
+      "isCustom": false,
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000007",
+      "slug": "plancha",
+      "name": "Plancha",
+      "muscleGroups": ["CORE"],
+      "equipment": ["NONE"],
+      "difficulty": 1,
+      "mode": "TIME",
+      "met": 3,
+      "instructions": [
+        "Apoya antebrazos y puntas de los pies en el suelo.",
+        "Mantén el cuerpo alineado de cabeza a talones.",
+        "Contrae el abdomen y sostén la posición."
+      ],
+      "commonMistakes": ["Dejar caer la cadera.", "Elevar demasiado la cadera."],
+      "imageUrl": "https://cdn.fitapp.test/img/plancha.png",
+      "animationUrl": "https://cdn.fitapp.test/anim/plancha.gif",
+      "videoUrl": null,
+      "isCustom": false,
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000008",
+      "slug": "salto-de-cuerda",
+      "name": "Salto de cuerda",
+      "muscleGroups": ["CARDIO"],
+      "equipment": ["JUMP_ROPE"],
+      "difficulty": 2,
+      "mode": "TIME",
+      "met": 11,
+      "instructions": [
+        "Sostén una cuerda con un mango en cada mano.",
+        "Salta con ambos pies a la vez que la cuerda pasa bajo ellos.",
+        "Mantén un ritmo constante y los codos cerca del cuerpo."
+      ],
+      "commonMistakes": ["Saltar demasiado alto.", "Mirar hacia los pies en vez de al frente."],
+      "imageUrl": "https://cdn.fitapp.test/img/salto-de-cuerda.png",
+      "animationUrl": "https://cdn.fitapp.test/anim/salto-de-cuerda.gif",
+      "videoUrl": null,
+      "isCustom": false,
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "routines": [
+    {
+      "id": "00000000-0000-4000-9000-000000000001",
+      "name": "Cuerpo completo sin equipo",
+      "goal": "LOSE_WEIGHT",
+      "level": "BEGINNER",
+      "timerDefaults": {
+        "prepSeconds": 10,
+        "workSeconds": 40,
+        "restBetweenSetsSeconds": 45,
+        "restBetweenExercisesSeconds": 90,
+        "restBetweenRoundsSeconds": 120,
+        "halfwayCue": false
+      },
+      "version": 1,
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "blocks": [
+        {
+          "id": "00000000-0000-4000-a000-000000000001",
+          "type": "MAIN",
+          "grouping": "CIRCUIT",
+          "rounds": 3,
+          "items": [
+            { "id": "00000000-0000-4000-a000-000000000002", "exerciseId": "00000000-0000-4000-8000-000000000001", "sets": 1, "targetReps": 12 },
+            { "id": "00000000-0000-4000-a000-000000000003", "exerciseId": "00000000-0000-4000-8000-000000000005", "sets": 1, "targetReps": 12 },
+            { "id": "00000000-0000-4000-a000-000000000004", "exerciseId": "00000000-0000-4000-8000-000000000007", "sets": 1, "targetSeconds": 30 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000002",
+      "name": "Torso-pierna con mancuernas",
+      "goal": "MUSCLE_GAIN",
+      "level": "INTERMEDIATE",
+      "timerDefaults": {
+        "prepSeconds": 10,
+        "workSeconds": 40,
+        "restBetweenSetsSeconds": 60,
+        "restBetweenExercisesSeconds": 90,
+        "restBetweenRoundsSeconds": 120,
+        "halfwayCue": false
+      },
+      "version": 1,
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "blocks": [
+        {
+          "id": "00000000-0000-4000-a000-000000000005",
+          "type": "MAIN",
+          "grouping": "STRAIGHT",
+          "rounds": 1,
+          "items": [
+            { "id": "00000000-0000-4000-a000-000000000006", "exerciseId": "00000000-0000-4000-8000-000000000002", "sets": 4, "targetReps": 10 },
+            { "id": "00000000-0000-4000-a000-000000000007", "exerciseId": "00000000-0000-4000-8000-000000000003", "sets": 3, "targetReps": 8 },
+            { "id": "00000000-0000-4000-a000-000000000008", "exerciseId": "00000000-0000-4000-8000-000000000004", "sets": 4, "targetReps": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000003",
+      "name": "Resistencia cardio",
+      "goal": "ENDURANCE",
+      "level": "ADVANCED",
+      "timerDefaults": {
+        "prepSeconds": 10,
+        "workSeconds": 40,
+        "restBetweenSetsSeconds": 60,
+        "restBetweenExercisesSeconds": 90,
+        "restBetweenRoundsSeconds": 120,
+        "halfwayCue": false
+      },
+      "version": 1,
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "blocks": [
+        {
+          "id": "00000000-0000-4000-a000-000000000009",
+          "type": "MAIN",
+          "grouping": "CIRCUIT",
+          "rounds": 4,
+          "items": [
+            { "id": "00000000-0000-4000-a000-00000000000a", "exerciseId": "00000000-0000-4000-8000-000000000008", "sets": 1, "targetSeconds": 45 },
+            { "id": "00000000-0000-4000-a000-00000000000b", "exerciseId": "00000000-0000-4000-8000-000000000007", "sets": 1, "targetSeconds": 30 }
+          ]
+        }
+      ]
+    }
+  ]
+}
