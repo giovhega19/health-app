@@ -5,13 +5,552 @@ info:
   description: >-
     Contrato de la API de FitApp (contract-first). Fuente de verdad para el
     backend (Spring Boot) y el cliente TypeScript generado que consume la app
-    móvil (Expo). En H0 este archivo es un stub sin endpoints: los endpoints
-    de cada módulo (identity, profile, catalog, sync, ...) se agregan de
-    forma incremental en el plan técnico de cada Fxx, según ADR-004.
+    móvil (Expo). Los endpoints de cada módulo (identity, profile, catalog,
+    sync, ...) se agregan de forma incremental en el plan técnico de cada
+    Fxx, según ADR-004. En H1 se agregan los endpoints de `identity`,
+    `profile`, `sync` (mínimo, solo `profile`/`bodyMetric`) y `catalog`
+    (solo lectura), según `specs/F01-perfil-onboarding/plan.md` y
+    `specs/F02-catalogo-propuesta/plan.md`.
 servers:
   - url: /api/v1
     description: API v1 (versionado por ruta; solo cambios aditivos dentro de la versión)
-paths: {}
+tags:
+  - name: identity
+    description: >-
+      Registro, autenticación, rotación de tokens, recuperación de
+      contraseña, alta desde modo invitado y eliminación de cuenta.
+  - name: profile
+    description: Perfil de usuario y su historial de peso corporal.
+  - name: sync
+    description: >-
+      Sincronización mínima offline-first para las entidades `profile` y
+      `bodyMetric` (H1). Otras entidades se agregan en hitos futuros sin
+      modificar este módulo (Art. 9.1).
+  - name: catalog
+    description: >-
+      Catálogo de solo lectura de ejercicios y rutinas predefinidas, servido
+      por el backend y descargado íntegramente al cliente para uso offline.
+paths:
+  /auth/register:
+    post:
+      operationId: registerUser
+      tags: [identity]
+      summary: Crea una cuenta nueva
+      description: >-
+        Crea una cuenta con email y contraseña. RF-01.01, RF-01.07,
+        CA-01.07.1.
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Cuenta creada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "409":
+          description: El email ya está registrado.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              example:
+                type: "https://fitapp.dev/problems/email-already-registered"
+                title: "El email ya está registrado"
+                status: 409
+                code: "EMAIL_ALREADY_REGISTERED"
+                detail: "Ya existe una cuenta con ese email. Inicia sesión en su lugar."
+        "422":
+          description: Datos de registro inválidos (p. ej. contraseña débil).
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /auth/login:
+    post:
+      operationId: loginUser
+      tags: [identity]
+      summary: Inicia sesión con email y contraseña
+      description: RF-01.01.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Sesión iniciada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "401":
+          description: Credenciales inválidas.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              example:
+                type: "https://fitapp.dev/problems/auth-invalid-credentials"
+                title: "Credenciales inválidas"
+                status: 401
+                code: "AUTH_INVALID_CREDENTIALS"
+                detail: "El email o la contraseña no son correctos."
+
+  /auth/refresh:
+    post:
+      operationId: refreshAccessToken
+      tags: [identity]
+      summary: Rota el refresh token y emite un nuevo par de tokens
+      description: >-
+        El refresh token enviado queda revocado al usarse (rotación).
+        RF-01.01.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshRequest"
+      responses:
+        "200":
+          description: Nuevo par de tokens emitido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "401":
+          description: El refresh token es inválido, ya fue usado o expiró.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              example:
+                type: "https://fitapp.dev/problems/auth-refresh-token-invalid"
+                title: "Refresh token inválido"
+                status: 401
+                code: "AUTH_REFRESH_TOKEN_INVALID"
+                detail: "El refresh token no es válido, ya fue usado o expiró. Inicia sesión de nuevo."
+
+  /auth/logout:
+    post:
+      operationId: logoutUser
+      tags: [identity]
+      summary: Revoca el refresh token indicado
+      description: RF-01.01.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshRequest"
+      responses:
+        "204":
+          description: Sesión cerrada; el refresh token queda revocado.
+        "401":
+          description: El refresh token es inválido o ya fue revocado.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /auth/password/forgot:
+    post:
+      operationId: requestPasswordReset
+      tags: [identity]
+      summary: Solicita un enlace de recuperación de contraseña
+      description: >-
+        Siempre responde `202` exista o no la cuenta, para no revelar si un
+        email está registrado. RF-01.01.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotPasswordRequest"
+      responses:
+        "202":
+          description: >-
+            Solicitud aceptada. Si el email existe, se envía un enlace de
+            un solo uso (válido 30 min).
+        "422":
+          description: El email no tiene un formato válido.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /auth/password/reset:
+    post:
+      operationId: resetPassword
+      tags: [identity]
+      summary: Restablece la contraseña con un token de un solo uso
+      description: RF-01.01.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+      responses:
+        "200":
+          description: Contraseña actualizada.
+        "401":
+          description: El token de recuperación es inválido o expiró.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /auth/guest/upgrade:
+    post:
+      operationId: upgradeGuestToAccount
+      tags: [identity]
+      summary: Convierte los datos del modo invitado en una cuenta
+      description: >-
+        Mismo cuerpo que el registro. Tras crear la cuenta, el cliente
+        dispara el primer `POST /sync/push` con los datos locales del modo
+        invitado. RF-01.01, CA-01.01.1.
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Cuenta creada a partir del modo invitado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "409":
+          description: El email ya está registrado.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: Datos de registro inválidos.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /me:
+    delete:
+      operationId: deleteAccount
+      tags: [identity]
+      summary: Elimina la cuenta autenticada y sus datos
+      description: >-
+        Borrado lógico inmediato y definitivo en ≤ 30 días; revoca los
+        tokens de la cuenta. RF-01.08, CA-01.08.1, Art. 5.4.
+      security:
+        - bearerAuth: []
+      responses:
+        "202":
+          description: Eliminación aceptada; se procesa de forma asíncrona.
+        "401":
+          description: El access token es inválido, expiró o falta.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /me/profile:
+    get:
+      operationId: getMyProfile
+      tags: [profile]
+      summary: Obtiene el perfil autenticado
+      description: RF-01.03, RF-01.06.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Perfil del usuario autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfileDto"
+        "401":
+          description: El access token es inválido, expiró o falta.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    put:
+      operationId: updateMyProfile
+      tags: [profile]
+      summary: Actualiza el perfil autenticado
+      description: >-
+        Aplica también del lado del servidor las validaciones RN-01 (edad
+        mínima 16 años) y RN-02 (rangos de estatura/peso), además de las ya
+        aplicadas en el cliente. RF-01.03, RF-01.06.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserProfileDto"
+      responses:
+        "200":
+          description: Perfil actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfileDto"
+        "422":
+          description: >-
+            Error de validación (p. ej. edad menor al mínimo, código
+            `AGE_BELOW_MINIMUM`).
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              example:
+                type: "https://fitapp.dev/problems/validation-error"
+                title: "Error de validación"
+                status: 422
+                code: "VALIDATION_ERROR"
+                detail: "El perfil tiene uno o más campos inválidos."
+                errors:
+                  - field: "birthDate"
+                    code: "AGE_BELOW_MINIMUM"
+                    detail: "La app requiere una edad mínima de 16 años."
+
+  /me/body-metrics:
+    get:
+      operationId: getMyBodyMetrics
+      tags: [profile]
+      summary: Historial de métricas corporales (peso) del usuario autenticado
+      description: RF-01.06.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: false
+          description: Fecha inicial (inclusive) del rango, ISO-8601.
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          description: Fecha final (inclusive) del rango, ISO-8601.
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Historial de peso.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/BodyMetricDto"
+        "401":
+          description: El access token es inválido, expiró o falta.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /sync/push:
+    post:
+      operationId: pushSyncChanges
+      tags: [sync]
+      summary: Envía cambios locales pendientes al servidor
+      description: >-
+        En H1 solo se aceptan cambios de `entity` ∈ {`profile`,
+        `bodyMetric`}; cualquier otro valor se rechaza con
+        `code: "UNSUPPORTED_ENTITY"`. CA-01.01.1, CA-01.06.1.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SyncPushRequest"
+      responses:
+        "200":
+          description: Resultado de aplicar los cambios enviados.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncPushResponse"
+        "401":
+          description: El access token es inválido, expiró o falta.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /sync/pull:
+    get:
+      operationId: pullSyncChanges
+      tags: [sync]
+      summary: Obtiene cambios remotos pendientes de aplicar localmente
+      description: CA-01.01.1.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          description: Cursor opaco devuelto por una llamada anterior.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: Tamaño máximo de página.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 500
+      responses:
+        "200":
+          description: Página de cambios remotos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncPullResponse"
+        "401":
+          description: El access token es inválido, expiró o falta.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /catalog/manifest:
+    get:
+      operationId: getCatalogManifest
+      tags: [catalog]
+      summary: Manifiesto de versión del catálogo
+      description: >-
+        Permite al cliente decidir si necesita sincronizar el catálogo.
+        RF-02.06, CA-02.06.1.
+      security: []
+      responses:
+        "200":
+          description: Manifiesto vigente del catálogo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogManifest"
+        "429":
+          description: Límite de tasa excedido.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /catalog/exercises:
+    get:
+      operationId: listCatalogExercises
+      tags: [catalog]
+      summary: Lista los ejercicios del catálogo
+      description: >-
+        Soporta sincronización incremental vía `updatedSince`. RF-02.01,
+        RF-02.06, CA-02.06.1.
+      parameters:
+        - name: updatedSince
+          in: query
+          required: false
+          description: >-
+            Devuelve solo los ejercicios creados o modificados después de
+            esta fecha/hora.
+          schema:
+            type: string
+            format: date-time
+      security: []
+      responses:
+        "200":
+          description: Ejercicios del catálogo.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ExerciseDto"
+        "400":
+          description: Parámetros de consulta inválidos (p. ej. `updatedSince` mal formado).
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /catalog/routines:
+    get:
+      operationId: listCatalogRoutines
+      tags: [catalog]
+      summary: Lista las rutinas predefinidas del catálogo
+      description: >-
+        Soporta sincronización incremental vía `updatedSince`. RF-02.03,
+        RF-02.06, CA-02.06.1.
+      parameters:
+        - name: updatedSince
+          in: query
+          required: false
+          description: >-
+            Devuelve solo las rutinas creadas o modificadas después de esta
+            fecha/hora.
+          schema:
+            type: string
+            format: date-time
+      security: []
+      responses:
+        "200":
+          description: Rutinas predefinidas del catálogo.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/RoutineDto"
+        "400":
+          description: Parámetros de consulta inválidos (p. ej. `updatedSince` mal formado).
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -22,6 +561,17 @@ components:
         Authorization: Bearer <accessJWT>. Access token de 15 minutos; el
         refresh token (30 días) es rotativo y se intercambia vía
         /auth/refresh (ver 06-contratos-api.md).
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: >-
+        Clave de idempotencia (UUID) para reintentar de forma segura un
+        `POST` de escritura (06-contratos-api.md §1).
+      schema:
+        type: string
+        format: uuid
   schemas:
     Problem:
       type: object
@@ -78,3 +628,536 @@ components:
       required:
         - field
         - code
+
+    RegisterRequest:
+      type: object
+      description: Cuerpo compartido por `/auth/register` y `/auth/guest/upgrade`.
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: "≥ 8 caracteres; no puede estar en una lista de contraseñas comunes."
+        acceptedTermsVersion:
+          type: string
+          description: Versión de los términos y condiciones aceptados.
+          example: "1.0"
+        healthDataConsent:
+          type: boolean
+          description: >-
+            Consentimiento explícito de tratamiento de datos de salud
+            (CA-01.07.1, Art. 5.3). Debe ser `true`.
+          example: true
+      required:
+        - email
+        - password
+        - acceptedTermsVersion
+        - healthDataConsent
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      required:
+        - email
+        - password
+
+    RefreshRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+      required:
+        - refreshToken
+
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+        - email
+
+    ResetPasswordRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Token de un solo uso recibido por email (válido 30 min).
+        newPassword:
+          type: string
+          format: password
+          minLength: 8
+      required:
+        - token
+        - newPassword
+
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+      required:
+        - id
+        - email
+
+    AuthTokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT de acceso, válido 15 minutos.
+        refreshToken:
+          type: string
+          description: Token de refresco rotativo, válido 30 días.
+        user:
+          $ref: "#/components/schemas/UserSummary"
+      required:
+        - accessToken
+        - refreshToken
+        - user
+
+    Gender:
+      type: string
+      enum: [MALE, FEMALE, OTHER, PREFER_NOT_TO_SAY]
+    FitnessGoal:
+      type: string
+      enum: [LOSE_WEIGHT, ENDURANCE, MUSCLE_GAIN, STRENGTH, GENERAL_HEALTH]
+    Level:
+      type: string
+      enum: [BEGINNER, INTERMEDIATE, ADVANCED]
+    Equipment:
+      type: string
+      enum:
+        - NONE
+        - DUMBBELLS
+        - PULL_UP_BAR
+        - BANDS
+        - KETTLEBELL
+        - BENCH
+        - JUMP_ROPE
+        - GYM
+    UnitSystem:
+      type: string
+      enum: [METRIC, IMPERIAL]
+
+    UserProfileDto:
+      type: object
+      description: >-
+        Réplica server-side minimalista del perfil (05-modelo-dominio-reglas.md
+        §1). El servidor no recalcula IMC/TMB: esos cálculos son solo de UI
+        del cliente (RN-02, RN-03).
+      properties:
+        id:
+          type: string
+          format: uuid
+        birthDate:
+          type: string
+          format: date
+        gender:
+          $ref: "#/components/schemas/Gender"
+        heightCm:
+          type: number
+          minimum: 100
+          maximum: 250
+        goal:
+          $ref: "#/components/schemas/FitnessGoal"
+        level:
+          $ref: "#/components/schemas/Level"
+        daysPerWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+        minutesPerSession:
+          type: integer
+          minimum: 10
+          maximum: 120
+        equipment:
+          type: array
+          items:
+            $ref: "#/components/schemas/Equipment"
+        unitSystem:
+          $ref: "#/components/schemas/UnitSystem"
+        targetWeightKg:
+          type: [number, "null"]
+          minimum: 25
+          maximum: 350
+        parqFlagged:
+          type: boolean
+          description: >-
+            `true` si el cuestionario de aptitud dio positivo (RN-14 solo
+            propone BEGINNER/GENERAL_HEALTH mientras siga en `true`).
+        healthConsentAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - birthDate
+        - gender
+        - heightCm
+        - goal
+        - level
+        - daysPerWeek
+        - minutesPerSession
+        - equipment
+        - unitSystem
+        - parqFlagged
+        - healthConsentAt
+        - updatedAt
+
+    BodyMetricDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        weightKg:
+          type: number
+          minimum: 25
+          maximum: 350
+        waistCm:
+          type: [number, "null"]
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - date
+        - weightKg
+        - updatedAt
+
+    SyncEntity:
+      type: string
+      description: >-
+        En H1 el backend solo acepta/emite estas entidades; cualquier otro
+        valor se rechaza con `code: "UNSUPPORTED_ENTITY"`.
+      enum: [profile, bodyMetric]
+
+    SyncChange:
+      type: object
+      description: 06-contratos-api.md §"sync".
+      properties:
+        entity:
+          $ref: "#/components/schemas/SyncEntity"
+        op:
+          type: string
+          enum: [upsert, delete]
+        id:
+          type: string
+          format: uuid
+        updatedAt:
+          type: string
+          format: date-time
+        data:
+          type: object
+          description: Presente cuando `op = upsert`; ausente cuando `op = delete`.
+          additionalProperties: true
+      required:
+        - entity
+        - op
+        - id
+        - updatedAt
+
+    SyncPushRequest:
+      type: object
+      properties:
+        deviceId:
+          type: string
+        changes:
+          type: array
+          items:
+            $ref: "#/components/schemas/SyncChange"
+      required:
+        - deviceId
+        - changes
+
+    SyncRejection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+          example: "VALIDATION_ERROR"
+        detail:
+          type: string
+      required:
+        - id
+        - code
+
+    SyncPushResponse:
+      type: object
+      properties:
+        accepted:
+          type: array
+          items:
+            type: string
+            format: uuid
+        rejected:
+          type: array
+          items:
+            $ref: "#/components/schemas/SyncRejection"
+        serverTime:
+          type: string
+          format: date-time
+      required:
+        - accepted
+        - rejected
+        - serverTime
+
+    SyncPullResponse:
+      type: object
+      properties:
+        changes:
+          type: array
+          items:
+            $ref: "#/components/schemas/SyncChange"
+        nextCursor:
+          type: [string, "null"]
+        hasMore:
+          type: boolean
+      required:
+        - changes
+        - hasMore
+
+    CatalogManifest:
+      type: object
+      properties:
+        version:
+          type: integer
+        exercisesEtag:
+          type: string
+        routinesEtag:
+          type: string
+        mediaBaseUrl:
+          type: string
+          format: uri
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - version
+        - exercisesEtag
+        - routinesEtag
+        - mediaBaseUrl
+        - updatedAt
+
+    ExerciseMode:
+      type: string
+      enum: [REPS, TIME]
+
+    ExerciseDto:
+      type: object
+      description: 05-modelo-dominio-reglas.md §1 (class Exercise).
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        muscleGroups:
+          type: array
+          items:
+            type: string
+          description: >-
+            Grupos musculares principales trabajados. Taxonomía aún no
+            fijada como enum cerrado en 05-modelo-dominio-reglas.md; se
+            modela como texto libre para no anticipar valores no
+            aprobados.
+        equipment:
+          type: array
+          items:
+            $ref: "#/components/schemas/Equipment"
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 3
+          description: Escala 1 (más fácil) a 3 (más difícil), usada por RN-14.
+        mode:
+          $ref: "#/components/schemas/ExerciseMode"
+        met:
+          type: number
+          description: Equivalente metabólico, usado en RN-04.
+        instructions:
+          type: array
+          items:
+            type: string
+          minItems: 3
+        commonMistakes:
+          type: array
+          items:
+            type: string
+          minItems: 2
+        imageUrl:
+          type: string
+          format: uri
+        animationUrl:
+          type: [string, "null"]
+          format: uri
+        videoUrl:
+          type: [string, "null"]
+          format: uri
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - slug
+        - name
+        - muscleGroups
+        - equipment
+        - difficulty
+        - mode
+        - met
+        - instructions
+        - commonMistakes
+        - imageUrl
+        - updatedAt
+
+    TimerSettings:
+      type: object
+      description: 05-modelo-dominio-reglas.md §1 (class TimerSettings), RN-05.
+      properties:
+        prepSeconds:
+          type: integer
+          minimum: 0
+          maximum: 30
+        workSeconds:
+          type: integer
+          minimum: 5
+          maximum: 600
+        restBetweenSetsSeconds:
+          type: integer
+          minimum: 0
+          maximum: 600
+        restBetweenExercisesSeconds:
+          type: integer
+          minimum: 0
+          maximum: 600
+        restBetweenRoundsSeconds:
+          type: integer
+          minimum: 0
+          maximum: 600
+        halfwayCue:
+          type: boolean
+
+    RoutineItemDto:
+      type: object
+      description: 05-modelo-dominio-reglas.md §1 (class RoutineItem).
+      properties:
+        id:
+          type: string
+          format: uuid
+        exerciseId:
+          type: string
+          format: uuid
+        sets:
+          type: integer
+          minimum: 1
+          maximum: 10
+        targetReps:
+          type: [integer, "null"]
+          minimum: 1
+          maximum: 100
+        targetSeconds:
+          type: [integer, "null"]
+          minimum: 5
+          maximum: 600
+        weightKg:
+          type: [number, "null"]
+          minimum: 0
+          maximum: 500
+        timerOverrides:
+          oneOf:
+            - $ref: "#/components/schemas/TimerSettings"
+            - type: "null"
+      required:
+        - id
+        - exerciseId
+        - sets
+
+    RoutineBlockDto:
+      type: object
+      description: 05-modelo-dominio-reglas.md §1 (class RoutineBlock).
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [WARMUP, MAIN, COOLDOWN]
+        grouping:
+          type: string
+          enum: [STRAIGHT, SUPERSET, CIRCUIT]
+        rounds:
+          type: integer
+          minimum: 1
+          maximum: 10
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoutineItemDto"
+      required:
+        - id
+        - type
+        - grouping
+        - rounds
+        - items
+
+    RoutineDto:
+      type: object
+      description: >-
+        Rutina predefinida (`source: PREDEFINED`, no editable por el
+        usuario). 05-modelo-dominio-reglas.md §1 (class Routine).
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        goal:
+          $ref: "#/components/schemas/FitnessGoal"
+        level:
+          $ref: "#/components/schemas/Level"
+        timerDefaults:
+          $ref: "#/components/schemas/TimerSettings"
+        blocks:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoutineBlockDto"
+        version:
+          type: integer
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - goal
+        - level
+        - timerDefaults
+        - blocks
+        - version
+        - updatedAt

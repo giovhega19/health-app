@@ -1,11 +1,45 @@
-# Minimal configuration for H0. No datasource / PostgreSQL / credentials yet:
-# those are added contract-first as part of F01's technical plan
-# (see specs/H0-fundaciones/plan.md §4).
+# F01/F02 (H1): first real datasource/JWT configuration. Local development
+# uses docker-compose.yml (PostgreSQL). No cloud provider is assumed (D5
+# stays deferred, see 04-arquitectura.md §2).
 spring:
   application:
     name: fitapp-backend
   profiles:
     default: dev
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/fitapp}
+    username: ${DB_USERNAME:fitapp}
+    password: ${DB_PASSWORD:fitapp}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Flyway is the single source of truth for the schema (Art. 2.3/§4 of
+      # 04-arquitectura.md): Hibernate only validates the mapping matches it,
+      # it never generates/alters DDL itself.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    # One migration folder per module (logical schema via table prefix, see
+    # specs/F01-perfil-onboarding/plan.md §4 / specs/F02-catalogo-propuesta/plan.md §4),
+    # all applied to the same `public` schema/history table.
+    locations: classpath:db/migration/identity,classpath:db/migration/profile,classpath:db/migration/catalog
 
 server:
   port: 8080
+
+fitapp:
+  security:
+    jwt:
+      # Dev-only default secret (Art. 8.5: never a real secret in the repo).
+      # Overridden via JWT_SECRET in every real environment.
+      secret: ${JWT_SECRET:dev-only-secret-please-override-in-every-real-environment-0123456789}
+      access-token-ttl: PT15M
+      refresh-token-ttl: P30D
+    rate-limit:
+      auth:
+        max-requests: 10
+        window: PT1M

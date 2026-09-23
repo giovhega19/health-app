@@ -16,7 +16,13 @@ web-build/
 
 # Build outputs
 build/
-out/
+# Anchored to the repo root only: an unanchored `out/` also matched the
+# hexagonal architecture's `adapters/out/**` package convention used by every
+# backend module (`com.fitapp.<modulo>.adapters.out.*`), which silently
+# excluded ~40 real source/test files backend-wide from every commit (they
+# only ever existed in local working trees, never in the git history) — see
+# the CI investigation that found this.
+/out/
 
 # Coverage
 coverage/

@@ -11,7 +11,7 @@ describe("apiClient", () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: () => Promise.resolve({ hello: "world" }),
+      text: () => Promise.resolve(JSON.stringify({ hello: "world" })),
     }) as unknown as typeof fetch;
 
     const result = await apiClient<{ hello: string }>("https://example.com");
@@ -23,9 +23,21 @@ describe("apiClient", () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: false,
       status: 500,
-      json: () => Promise.resolve({}),
+      text: () => Promise.resolve("{}"),
     }) as unknown as typeof fetch;
 
     await expect(apiClient("https://example.com")).rejects.toThrow("HTTP 500");
+  });
+
+  it("devuelve undefined cuando la respuesta exitosa no tiene cuerpo (202/204, p. ej. DELETE /me)", async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 202,
+      text: () => Promise.resolve(""),
+    }) as unknown as typeof fetch;
+
+    const result = await apiClient<void>("https://example.com");
+
+    expect(result).toBeUndefined();
   });
 });

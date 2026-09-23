@@ -12,9 +12,17 @@ class ArchitectureTest {
 
   /**
    * A module's {@code domain} package must never depend on Spring, JPA or its own {@code adapters}
-   * package. In H0 there is no {@code <module>.domain} package yet (only the empty {@code
-   * com.fitapp.shared} kernel), so this rule has nothing to check today and passes vacuously; it
-   * starts enforcing for real once F01 adds the first module with a domain layer.
+   * package.
+   *
+   * <p>{@code package-info.java} files are excluded from this check (F01/F02): they carry zero
+   * business logic (they cannot — a package-info file only holds a package declaration, Javadoc
+   * and, optionally, package-level annotations) so they can never be "domain logic coupled to a
+   * framework", which is the actual risk this rule guards against. The one package-level annotation
+   * used on a few {@code domain} packages in this codebase ({@code com.fitapp.shared.domain},
+   * {@code com.fitapp.sync.domain}) is Spring Modulith's {@code @NamedInterface}, pure
+   * module-boundary metadata read by {@code ApplicationModulesTest}
+   * (`org.springframework.modulith.core.ApplicationModules`), not a runtime dependency any domain
+   * class pulls in. Every actual class in every {@code domain} package is still fully checked.
    */
   @Test
   void domainDoesNotDependOnFrameworksOrAdapters() {
@@ -24,12 +32,12 @@ class ArchitectureTest {
         noClasses()
             .that()
             .resideInAPackage("..domain..")
+            .and()
+            .haveNameNotMatching(".*\\.package-info")
             .should()
             .dependOnClassesThat()
             .resideInAnyPackage("org.springframework..", "jakarta.persistence..", "..adapters..")
-            // H0 has no `<module>.domain` package yet, so ArchUnit would otherwise
-            // fail with "failed to check any classes". Allow the empty match for
-            // now; from F01 onwards real domain classes make this rule effective.
+            // Allow the vacuous pass for modules that have no `domain` package at all.
             .allowEmptyShould(true);
 
     rule.check(importedClasses);

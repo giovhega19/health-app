@@ -1,7 +1,6 @@
 /**
- * Carpeta reservada para el adaptador en memoria del puerto `EventBus`
- * (`shared/domain/EventBus.ts`), ver 04-arquitectura.md §3.4. Sin
- * implementación real todavía: llega cuando la primera feature publique un
- * evento de dominio (p. ej. `WorkoutSessionCompleted` en F05).
+ * Adaptador en memoria del puerto `EventBus` (`shared/domain/EventBus.ts`),
+ * ver 04-arquitectura.md §3.4. Primer consumidor real: F01/F02 (H1),
+ * `OnboardingCompleted`/`BodyWeightLogged`/`ProposalAccepted`.
  */
-export {};
+export { InMemoryEventBus } from "./InMemoryEventBus";
