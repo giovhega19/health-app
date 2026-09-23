@@ -6,6 +6,12 @@
  * directamente (p. ej. `features/profile/presentation/screens/Consent.tsx`).
  */
 export const strings = {
+  home: {
+    title: "FitApp",
+    onboardingCta: "Empezar onboarding",
+    catalogCta: "Ver catálogo",
+    profileCta: "Mi perfil",
+  },
   common: {
     continue: "Continuar",
     back: "Atrás",
