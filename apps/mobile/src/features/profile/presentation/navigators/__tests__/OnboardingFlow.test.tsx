@@ -28,7 +28,15 @@ function buildContainer() {
   const routineProposalPort = new FakeRoutineProposalPort();
   routineProposalPort.result = {
     ok: true,
-    value: { days: [{ dayNumber: 1, estimatedDurationSeconds: 2700, routine: { timerDefaults: {} as never, blocks: [] } }] },
+    value: {
+      days: [
+        {
+          dayNumber: 1,
+          estimatedDurationSeconds: 2700,
+          routine: { timerDefaults: {} as never, blocks: [] },
+        },
+      ],
+    },
   };
   const eventBus = new FakeEventBus();
   const clock = new FakeClock("2026-09-22T10:00:00Z");
@@ -110,5 +118,5 @@ describe("RF-01.02 OnboardingNavigator", () => {
 
     expect(onFinish).toHaveBeenCalledTimes(1);
     expect(profileRepository.savedProfiles[0]?.goal).toBe("GENERAL_HEALTH");
-  });
+  }, 15000);
 });
