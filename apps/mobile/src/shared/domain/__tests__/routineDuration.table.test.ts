@@ -134,4 +134,48 @@ describe("RN-07 estimateRoutineDurationSeconds — tabla de valores de referenci
 
     expect(estimateRoutineDurationSeconds(routine, timerDefaults)).toBe(30);
   });
+
+  it("CA-03.04.1 (F03) circuito de 4 ejercicios y 3 rondas: incluye 2 descansos entre rondas y no incluye descansos entre los ejercicios del circuito", () => {
+    // NOTA (F03, fase roja de qa-pruebas): este caso ya pasa con el
+    // estimador actual — `gapsSum` en `routineDuration.ts` solo aplica
+    // `restBetweenExercisesSeconds` cuando `grouping === "STRAIGHT"`, así
+    // que CIRCUIT ya queda cubierto desde F02. Se añade aquí (sin reescribir
+    // el archivo, `specs/F03-editor-rutinas/plan.md` §5) como caso de
+    // referencia explícito del escenario Gherkin de CA-03.04.1; la
+    // construcción del agregado `Routine` para este mismo escenario se
+    // prueba, en rojo, en `features/routines/domain/__tests__/Routine.circuit.test.ts`.
+    // duración = prep(0) + 4×(1×30s) + 0 (sin descanso entre ejercicios) + 2×90 (rondas) = 300
+    const timerDefaults = {
+      prepSeconds: 0,
+      workSeconds: 40,
+      restBetweenSetsSeconds: 0,
+      restBetweenExercisesSeconds: 45,
+      restBetweenRoundsSeconds: 90,
+      halfwayCue: false,
+    };
+    const routine = {
+      timerDefaults,
+      blocks: [
+        {
+          id: blockId(5),
+          type: "MAIN" as const,
+          grouping: "CIRCUIT" as const,
+          rounds: 3,
+          items: [
+            { id: itemId(7), exerciseId: exerciseId(7), sets: 1, targetReps: 10 },
+            { id: itemId(8), exerciseId: exerciseId(8), sets: 1, targetReps: 10 },
+            { id: itemId(9), exerciseId: exerciseId(9), sets: 1, targetReps: 10 },
+            {
+              id: asId("00000000-0000-4000-d200-000000000010"),
+              exerciseId: asId("00000000-0000-4000-d000-000000000010"),
+              sets: 1,
+              targetReps: 10,
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(estimateRoutineDurationSeconds(routine, timerDefaults)).toBe(300);
+  });
 });

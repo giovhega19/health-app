@@ -24,9 +24,10 @@ spring:
   flyway:
     enabled: true
     # One migration folder per module (logical schema via table prefix, see
-    # specs/F01-perfil-onboarding/plan.md §4 / specs/F02-catalogo-propuesta/plan.md §4),
+    # specs/F01-perfil-onboarding/plan.md §4 / specs/F02-catalogo-propuesta/plan.md §4 /
+    # specs/F03-editor-rutinas/plan.md §4 / specs/F04-programacion-recordatorios/plan.md §4),
     # all applied to the same `public` schema/history table.
-    locations: classpath:db/migration/identity,classpath:db/migration/profile,classpath:db/migration/catalog
+    locations: classpath:db/migration/identity,classpath:db/migration/profile,classpath:db/migration/catalog,classpath:db/migration/training
 
 server:
   port: 8080

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fitapp.example.com/schemas/fitroutine.schema.v1.json",
+  "title": "FitApp .fitroutine.json (v1)",
+  "description": "Formato de exportación/importación de rutinas de FitApp (RF-03.08, ADR-009). Fuente normativa y portable del contrato; el validador que la app móvil ejecuta en producción es el zod escrito a mano en apps/mobile/src/features/routines/application/import/fitRoutineFileSchema.ts, sincronizado con este esquema mediante una prueba de paridad (packages/routine-schema/__tests__/parity.test.ts). Valida solo la forma estructural del archivo (campos presentes, tipos correctos); NO aplica los límites numéricos de RN-06 (eso lo hace clampToLimits en PreviewImportRoutine, con advertencia, CA-03.08.3) ni el tamaño máximo de 256 KB (se verifica antes de parsear, fuera de este esquema).",
+  "type": "object",
+  "required": ["schema", "schemaVersion", "exportedAt", "routine"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": { "const": "fitapp.routine" },
+    "schemaVersion": { "type": "integer", "exclusiveMinimum": 0 },
+    "exportedAt": { "type": "string" },
+    "routine": { "$ref": "#/$defs/routine" }
+  },
+  "$defs": {
+    "timerSettingsPartial": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "prepSeconds": { "type": "number" },
+        "workSeconds": { "type": "number" },
+        "restBetweenSetsSeconds": { "type": "number" },
+        "restBetweenExercisesSeconds": { "type": "number" },
+        "restBetweenRoundsSeconds": { "type": "number" },
+        "halfwayCue": { "type": "boolean" }
+      }
+    },
+    "catalogExerciseRef": {
+      "type": "object",
+      "required": ["ref"],
+      "additionalProperties": true,
+      "properties": {
+        "ref": { "type": "string", "pattern": "^catalog:.+" }
+      }
+    },
+    "customExerciseRef": {
+      "type": "object",
+      "required": ["ref", "name", "mode", "muscleGroups"],
+      "additionalProperties": true,
+      "properties": {
+        "ref": { "const": "custom" },
+        "name": { "type": "string", "minLength": 1 },
+        "mode": { "enum": ["REPS", "TIME"] },
+        "muscleGroups": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "exerciseRef": {
+      "anyOf": [{ "$ref": "#/$defs/catalogExerciseRef" }, { "$ref": "#/$defs/customExerciseRef" }]
+    },
+    "routineItem": {
+      "type": "object",
+      "required": ["exercise", "sets"],
+      "additionalProperties": true,
+      "properties": {
+        "exercise": { "$ref": "#/$defs/exerciseRef" },
+        "sets": { "type": "integer" },
+        "targetReps": { "type": "integer" },
+        "targetSeconds": { "type": "number" },
+        "weightKg": { "type": "number" },
+        "timerOverrides": { "$ref": "#/$defs/timerSettingsPartial" }
+      }
+    },
+    "routineBlock": {
+      "type": "object",
+      "required": ["type", "grouping", "rounds", "items"],
+      "additionalProperties": true,
+      "properties": {
+        "type": { "enum": ["WARMUP", "MAIN", "COOLDOWN"] },
+        "grouping": { "enum": ["STRAIGHT", "SUPERSET", "CIRCUIT"] },
+        "rounds": { "type": "integer", "minimum": 1 },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/routineItem" }
+        }
+      }
+    },
+    "routine": {
+      "type": "object",
+      "required": ["name", "goal", "level", "timerDefaults", "blocks"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "goal": { "enum": ["LOSE_WEIGHT", "ENDURANCE", "MUSCLE_GAIN", "STRENGTH", "GENERAL_HEALTH"] },
+        "level": { "enum": ["BEGINNER", "INTERMEDIATE", "ADVANCED"] },
+        "timerDefaults": { "$ref": "#/$defs/timerSettingsPartial" },
+        "blocks": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/routineBlock" }
+        }
+      }
+    }
+  }
+}

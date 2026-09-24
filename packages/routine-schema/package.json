@@ -2,5 +2,13 @@
   "name": "@fitapp/routine-schema",
   "private": true,
   "version": "1.0.0",
-  "description": "JSON Schema de importación/exportación de rutinas de FitApp (.fitroutine.json)."
+  "description": "JSON Schema de importación/exportación de rutinas de FitApp (.fitroutine.json).",
+  "scripts": {
+    "test": "tsx --test __tests__/*.test.ts"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "tsx": "^4.19.2",
+    "zod": "^4.6.5"
+  }
 }

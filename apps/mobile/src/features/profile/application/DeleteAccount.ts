@@ -1,5 +1,8 @@
 import { ok } from "@/shared/domain/Result";
 import type { Result } from "@/shared/domain/Result";
+import type { Clock } from "@/shared/domain/Clock";
+import type { EventBus } from "@/shared/domain/EventBus";
+import type { AccountDeletedEvent } from "../domain/events";
 import type { AuthError, AuthPort, BodyMetricRepository, ProfileRepository, RepositoryError, StorageError, TokenStoragePort } from "./ports";
 
 /**
@@ -8,12 +11,20 @@ import type { AuthError, AuthPort, BodyMetricRepository, ProfileRepository, Repo
  * eliminación se borran los datos locales (perfil, historial de peso y
  * tokens) — si el servidor la rechaza (token inválido/expirado), los datos
  * locales NO se tocan todavía.
+ *
+ * Tras limpiar sus propios datos, publica `AccountDeleted` (hallazgo de
+ * seguridad H2): `profile` no conoce ni importa `routines`/`scheduling`
+ * (Art. 2.5), así que la purga de rutinas/horarios/notificaciones de esas
+ * features vive en `composition/container.ts`, suscrito a este evento (mismo
+ * patrón que el `AccountDeletedListener` del backend).
  */
 export interface DeleteAccountDeps {
   authPort: AuthPort;
   profileRepository: ProfileRepository;
   bodyMetricRepository: BodyMetricRepository;
   tokenStoragePort: TokenStoragePort;
+  eventBus: EventBus;
+  clock: Clock;
 }
 
 export type DeleteAccountError = AuthError | RepositoryError | StorageError;
@@ -41,6 +52,12 @@ export class DeleteAccount {
     if (!clearTokensResult.ok) {
       return clearTokensResult;
     }
+
+    const event: AccountDeletedEvent = {
+      type: "AccountDeleted",
+      occurredAt: this.deps.clock.now(),
+    };
+    await this.deps.eventBus.publish(event);
 
     return ok(undefined);
   }
