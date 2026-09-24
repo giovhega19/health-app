@@ -12,7 +12,7 @@ import { strings } from "@/shared/i18n";
  */
 export default function IndexScreen(): React.JSX.Element {
   const router = useRouter();
-  const { title, onboardingCta, catalogCta, profileCta } = strings.home;
+  const { title, onboardingCta, catalogCta, profileCta, routinesCta, scheduleCta } = strings.home;
 
   return (
     <View style={{ flex: 1, padding: spacing.lg, backgroundColor: colors.background, justifyContent: "center" }}>
@@ -38,6 +38,22 @@ export default function IndexScreen(): React.JSX.Element {
         variant="secondary"
         onPress={() => {
           router.push("/profile");
+        }}
+      />
+      <View style={{ height: spacing.sm }} />
+      <PrimaryButton
+        label={routinesCta}
+        variant="secondary"
+        onPress={() => {
+          router.push("/routines");
+        }}
+      />
+      <View style={{ height: spacing.sm }} />
+      <PrimaryButton
+        label={scheduleCta}
+        variant="secondary"
+        onPress={() => {
+          router.push("/schedule");
         }}
       />
     </View>

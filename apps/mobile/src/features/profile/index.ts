@@ -86,6 +86,8 @@ export function createProfileContainer(deps: ProfileDeps): {
       profileRepository: deps.profileRepository,
       bodyMetricRepository: deps.bodyMetricRepository,
       tokenStoragePort: deps.tokenStoragePort,
+      eventBus: deps.eventBus,
+      clock: deps.clock,
     }),
     logBodyWeight: new LogBodyWeight({
       bodyMetricRepository: deps.bodyMetricRepository,

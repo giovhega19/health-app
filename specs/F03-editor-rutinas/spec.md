@@ -91,3 +91,6 @@ Rutina (nombre, objetivo, nivel, descripción, timerDefaults)
 
 ## Fuera de alcance
 Compartir por enlace o QR (v2) y editor en web.
+
+## Preguntas abiertas
+Ninguna pendiente. Resuelta: **sincronización de `Routine`/`CustomExercise` con el backend.** **Confirmado por el dueño del producto (2026-09-23):** sí, se sincronizan en H2, siguiendo la recomendación del arquitecto (`specs/F03-editor-rutinas/plan.md` §3) — reutiliza el pipeline de sincronización ya existente desde F01 (`outbox`, `POST /sync/push`/`GET /sync/pull`, SPI `SyncEntityHandler`/`SyncEntityApplier`, LWW de RN-18), sin reabrir `identity`/`profile`/`sync`/`catalog`, mediante un módulo backend `training` mínimo (sin endpoints REST propios, solo los manejadores del SPI de sync). Las rutinas del usuario sobreviven reinstalación o cambio de dispositivo, conforme al Art. 4.2 de la constitución.

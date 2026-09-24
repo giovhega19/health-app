@@ -269,6 +269,8 @@ describe("DeleteAccount — ramas de error", () => {
       profileRepository: new FailingFindCurrentProfileRepository(),
       bodyMetricRepository: new FakeBodyMetricRepository(),
       tokenStoragePort: new FakeTokenStoragePort(),
+      eventBus: new FakeEventBus(),
+      clock: new FakeClock("2026-09-24T10:00:00Z"),
     });
 
     const result = await useCase.execute();
@@ -282,6 +284,8 @@ describe("DeleteAccount — ramas de error", () => {
       profileRepository: new FakeProfileRepository(),
       bodyMetricRepository: new FailingClearBodyMetricRepository(),
       tokenStoragePort: new FakeTokenStoragePort(),
+      eventBus: new FakeEventBus(),
+      clock: new FakeClock("2026-09-24T10:00:00Z"),
     });
 
     const result = await useCase.execute();
@@ -297,6 +301,8 @@ describe("DeleteAccount — ramas de error", () => {
       profileRepository: new FakeProfileRepository(),
       bodyMetricRepository: new FakeBodyMetricRepository(),
       tokenStoragePort,
+      eventBus: new FakeEventBus(),
+      clock: new FakeClock("2026-09-24T10:00:00Z"),
     });
 
     const result = await useCase.execute();

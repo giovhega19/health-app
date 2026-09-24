@@ -8,6 +8,9 @@
  */
 interface StoredFile {
   size: number;
+  /** Contenido de texto (F03, `ExpoFileGateway`): ausente para los archivos
+   * "descargados" por `downloadFileAsync` (medios binarios, F02). */
+  content?: string;
 }
 
 export const fakeDisk = new Map<string, StoredFile>();
@@ -62,6 +65,27 @@ export class File {
 
   delete(): void {
     fakeDisk.delete(this.uri);
+  }
+
+  /** F03 (`ExpoFileGateway`): crea una entrada vacía si no existe. */
+  create(): void {
+    if (!fakeDisk.has(this.uri)) {
+      fakeDisk.set(this.uri, { size: 0, content: "" });
+    }
+  }
+
+  /** F03 (`ExpoFileGateway`): escribe contenido de texto (sobreescribe). */
+  write(content: string): void {
+    fakeDisk.set(this.uri, { size: content.length, content });
+  }
+
+  /** F03 (`ExpoFileGateway`): lee el contenido de texto guardado con `write()`. */
+  async text(): Promise<string> {
+    const stored = fakeDisk.get(this.uri);
+    if (!stored) {
+      throw new Error(`file not found: ${this.uri}`);
+    }
+    return stored.content ?? "";
   }
 
   static downloadFileAsync = jest.fn(async (url: string, destination: File | Directory): Promise<File> => {

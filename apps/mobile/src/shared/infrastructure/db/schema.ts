@@ -109,8 +109,92 @@ export const routineItems = sqliteTable(
     targetSeconds: integer("target_seconds"),
     weightKg: real("weight_kg"),
     timerOverrides: text("timer_overrides", { mode: "json" }),
+    // F03 (`specs/F03-editor-rutinas/plan.md` §4): columna aditiva, con
+    // `DEFAULT`, compatible con las filas ya existentes de F02 (que nunca la
+    // setean ni la leen).
+    exerciseSource: text("exercise_source").notNull().default("CATALOG"),
   },
   (table) => [index("routine_items_block_id_idx").on(table.blockId)],
+);
+
+// ---------------------------------------------------------------------------
+// routines (F03): `user_routines`, `custom_exercises` (reutiliza
+// `routine_blocks`/`routine_items` de arriba, `routine_id` apunta aquí en
+// vez de a `predefined_routines`, `specs/F03-editor-rutinas/plan.md` §1).
+// ---------------------------------------------------------------------------
+export const userRoutines = sqliteTable("user_routines", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  goal: text("goal").notNull(),
+  level: text("level").notNull(),
+  source: text("source").notNull(), // USER | IMPORTED
+  timerDefaults: text("timer_defaults", { mode: "json" }).notNull(),
+  version: integer("version").notNull(),
+  updatedAt: text("updated_at").notNull(),
+  deletedAt: text("deleted_at"),
+});
+
+export const customExercises = sqliteTable("custom_exercises", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  notes: text("notes"),
+  photoUri: text("photo_uri"),
+  muscleGroups: text("muscle_groups", { mode: "json" }).notNull().$type<string[]>(),
+  mode: text("mode").notNull(),
+  updatedAt: text("updated_at").notNull(),
+  deletedAt: text("deleted_at"),
+});
+
+// ---------------------------------------------------------------------------
+// scheduling (F04): `schedule_slots`, `planned_notifications` (100 % local,
+// nunca sincronizada), `scheduling_preferences` (fila única),
+// `postpone_counters` (100 % local).
+// ---------------------------------------------------------------------------
+export const scheduleSlots = sqliteTable("schedule_slots", {
+  id: text("id").primaryKey(),
+  routineId: text("routine_id").notNull(),
+  daysOfWeek: text("days_of_week", { mode: "json" }).notNull().$type<number[]>(),
+  startTime: text("start_time").notNull(),
+  reminderOffsetMin: integer("reminder_offset_min").notNull(),
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
+  updatedAt: text("updated_at").notNull(),
+  deletedAt: text("deleted_at"),
+});
+
+export const plannedNotifications = sqliteTable(
+  "planned_notifications",
+  {
+    id: text("id").primaryKey(),
+    scheduleSlotId: text("schedule_slot_id").notNull(),
+    routineId: text("routine_id").notNull(),
+    routineName: text("routine_name").notNull(),
+    type: text("type").notNull(),
+    fireAt: text("fire_at").notNull(),
+    osNotificationId: text("os_notification_id"),
+    delivered: integer("delivered", { mode: "boolean" }).notNull().default(false),
+  },
+  (table) => [index("planned_notifications_slot_id_idx").on(table.scheduleSlotId)],
+);
+
+export const schedulingPreferences = sqliteTable("scheduling_preferences", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  quietHoursStart: text("quiet_hours_start"),
+  quietHoursEnd: text("quiet_hours_end"),
+  maxNotificationsPerDay: integer("max_notifications_per_day").notNull(),
+  minHoursBetweenRoutines: integer("min_hours_between_routines").notNull(),
+  minHoursSameMuscle: integer("min_hours_same_muscle").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const postponeCounters = sqliteTable(
+  "postpone_counters",
+  {
+    date: text("date").notNull(),
+    scheduleSlotId: text("schedule_slot_id").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (table) => [uniqueIndex("postpone_counters_date_slot_unique").on(table.date, table.scheduleSlotId)],
 );
 
 export const catalogManifestState = sqliteTable("catalog_manifest_state", {

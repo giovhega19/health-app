@@ -10,7 +10,11 @@ info:
     Fxx, según ADR-004. En H1 se agregan los endpoints de `identity`,
     `profile`, `sync` (mínimo, solo `profile`/`bodyMetric`) y `catalog`
     (solo lectura), según `specs/F01-perfil-onboarding/plan.md` y
-    `specs/F02-catalogo-propuesta/plan.md`.
+    `specs/F02-catalogo-propuesta/plan.md`. En H2, `routine`, `customExercise`
+    (F03) y `scheduleSlot` (F04) se suman como entidades sincronizables vía
+    el mismo pipeline `sync/push`/`sync/pull`, sin endpoints REST nuevos,
+    según `specs/F03-editor-rutinas/plan.md` y
+    `specs/F04-programacion-recordatorios/plan.md`.
 servers:
   - url: /api/v1
     description: API v1 (versionado por ruta; solo cambios aditivos dentro de la versión)
@@ -23,9 +27,11 @@ tags:
     description: Perfil de usuario y su historial de peso corporal.
   - name: sync
     description: >-
-      Sincronización mínima offline-first para las entidades `profile` y
-      `bodyMetric` (H1). Otras entidades se agregan en hitos futuros sin
-      modificar este módulo (Art. 9.1).
+      Sincronización offline-first genérica. H1 cubre `profile` y
+      `bodyMetric`; H2 añade `routine`/`customExercise` (F03) y
+      `scheduleSlot` (F04) reutilizando el mismo pipeline `sync/push`/
+      `sync/pull`, sin nuevos endpoints. Otras entidades se agregan en
+      hitos futuros sin modificar la forma de este módulo (Art. 9.1).
   - name: catalog
     description: >-
       Catálogo de solo lectura de ejercicios y rutinas predefinidas, servido
@@ -385,8 +391,8 @@ paths:
       tags: [sync]
       summary: Envía cambios locales pendientes al servidor
       description: >-
-        En H1 solo se aceptan cambios de `entity` ∈ {`profile`,
-        `bodyMetric`}; cualquier otro valor se rechaza con
+        Solo se aceptan cambios cuyo `entity` esté en el enum
+        `SyncEntity`; cualquier otro valor se rechaza con
         `code: "UNSUPPORTED_ENTITY"`. CA-01.01.1, CA-01.06.1.
       security:
         - bearerAuth: []
@@ -848,9 +854,20 @@ components:
     SyncEntity:
       type: string
       description: >-
-        En H1 el backend solo acepta/emite estas entidades; cualquier otro
-        valor se rechaza con `code: "UNSUPPORTED_ENTITY"`.
-      enum: [profile, bodyMetric]
+        Entidades que el backend acepta/emite vía `/sync/push` y
+        `/sync/pull`; cualquier otro valor se rechaza con
+        `code: "UNSUPPORTED_ENTITY"`. `profile`/`bodyMetric` desde H1
+        (`specs/F01-perfil-onboarding/plan.md`); `routine`/`customExercise`
+        desde H2 (`specs/F03-editor-rutinas/plan.md`); `scheduleSlot` desde
+        H2 (`specs/F04-programacion-recordatorios/plan.md`). El payload
+        genérico `SyncChange` (mismo `{entity, op, id, updatedAt, data}`)
+        no cambia de forma al agregar entidades (Art. 9.1).
+      enum:
+        - profile
+        - bodyMetric
+        - routine
+        - customExercise
+        - scheduleSlot
 
     SyncChange:
       type: object

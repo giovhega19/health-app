@@ -23,6 +23,8 @@ import { FakeAuthPort } from "@test/fakes/FakeAuthPort";
 import { FakeProfileRepository } from "@test/fakes/FakeProfileRepository";
 import { FakeBodyMetricRepository } from "@test/fakes/FakeBodyMetricRepository";
 import { FakeTokenStoragePort } from "@test/fakes/FakeTokenStoragePort";
+import { FakeEventBus } from "@test/fakes/FakeEventBus";
+import { FakeClock } from "@test/fakes/FakeClock";
 
 describe("RF-01.08 DeleteAccount", () => {
   it("CA-01.08.1 llama a AuthPort.deleteAccount() (DELETE /me) y borra perfil, historial de peso y tokens locales", async () => {
@@ -30,7 +32,9 @@ describe("RF-01.08 DeleteAccount", () => {
     const profileRepository = new FakeProfileRepository();
     const bodyMetricRepository = new FakeBodyMetricRepository();
     const tokenStoragePort = new FakeTokenStoragePort();
-    const useCase = new DeleteAccount({ authPort, profileRepository, bodyMetricRepository, tokenStoragePort });
+    const eventBus = new FakeEventBus();
+    const clock = new FakeClock("2026-09-24T10:00:00Z");
+    const useCase = new DeleteAccount({ authPort, profileRepository, bodyMetricRepository, tokenStoragePort, eventBus, clock });
 
     const result = await useCase.execute();
 
@@ -47,7 +51,9 @@ describe("RF-01.08 DeleteAccount", () => {
     const profileRepository = new FakeProfileRepository();
     const bodyMetricRepository = new FakeBodyMetricRepository();
     const tokenStoragePort = new FakeTokenStoragePort();
-    const useCase = new DeleteAccount({ authPort, profileRepository, bodyMetricRepository, tokenStoragePort });
+    const eventBus = new FakeEventBus();
+    const clock = new FakeClock("2026-09-24T10:00:00Z");
+    const useCase = new DeleteAccount({ authPort, profileRepository, bodyMetricRepository, tokenStoragePort, eventBus, clock });
 
     const result = await useCase.execute();
 
@@ -55,5 +61,35 @@ describe("RF-01.08 DeleteAccount", () => {
     expect(profileRepository.clearCalls).toBe(0);
     expect(bodyMetricRepository.clearCalls).toBe(0);
     expect(tokenStoragePort.clearCalls).toBe(0);
+  });
+
+  it("hallazgo H2: publica AccountDeleted tras limpiar sus propios datos, para que otras features purguen las suyas", async () => {
+    const authPort = new FakeAuthPort();
+    const profileRepository = new FakeProfileRepository();
+    const bodyMetricRepository = new FakeBodyMetricRepository();
+    const tokenStoragePort = new FakeTokenStoragePort();
+    const eventBus = new FakeEventBus();
+    const clock = new FakeClock("2026-09-24T10:00:00Z");
+    const useCase = new DeleteAccount({ authPort, profileRepository, bodyMetricRepository, tokenStoragePort, eventBus, clock });
+
+    const result = await useCase.execute();
+
+    expect(isOk(result)).toBe(true);
+    expect(eventBus.eventsOfType("AccountDeleted")).toHaveLength(1);
+  });
+
+  it("hallazgo H2: si el servidor rechaza la eliminación, no publica AccountDeleted", async () => {
+    const authPort = new FakeAuthPort();
+    authPort.deleteAccountResult = err({ code: "AUTH_INVALID_TOKEN" });
+    const profileRepository = new FakeProfileRepository();
+    const bodyMetricRepository = new FakeBodyMetricRepository();
+    const tokenStoragePort = new FakeTokenStoragePort();
+    const eventBus = new FakeEventBus();
+    const clock = new FakeClock("2026-09-24T10:00:00Z");
+    const useCase = new DeleteAccount({ authPort, profileRepository, bodyMetricRepository, tokenStoragePort, eventBus, clock });
+
+    await useCase.execute();
+
+    expect(eventBus.eventsOfType("AccountDeleted")).toHaveLength(0);
   });
 });

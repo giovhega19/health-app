@@ -92,9 +92,68 @@ const STATEMENTS = [
     target_reps INTEGER,
     target_seconds INTEGER,
     weight_kg REAL,
-    timer_overrides TEXT
+    timer_overrides TEXT,
+    exercise_source TEXT NOT NULL DEFAULT 'CATALOG'
   )`,
   `CREATE INDEX IF NOT EXISTS routine_items_block_id_idx ON routine_items (block_id)`,
+  `CREATE TABLE IF NOT EXISTS user_routines (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    goal TEXT NOT NULL,
+    level TEXT NOT NULL,
+    source TEXT NOT NULL,
+    timer_defaults TEXT NOT NULL,
+    version INTEGER NOT NULL,
+    updated_at TEXT NOT NULL,
+    deleted_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS custom_exercises (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    notes TEXT,
+    photo_uri TEXT,
+    muscle_groups TEXT NOT NULL,
+    mode TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    deleted_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS schedule_slots (
+    id TEXT PRIMARY KEY NOT NULL,
+    routine_id TEXT NOT NULL,
+    days_of_week TEXT NOT NULL,
+    start_time TEXT NOT NULL,
+    reminder_offset_min INTEGER NOT NULL,
+    active INTEGER NOT NULL DEFAULT 1,
+    updated_at TEXT NOT NULL,
+    deleted_at TEXT
+  )`,
+  `CREATE TABLE IF NOT EXISTS planned_notifications (
+    id TEXT PRIMARY KEY NOT NULL,
+    schedule_slot_id TEXT NOT NULL,
+    routine_id TEXT NOT NULL,
+    routine_name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    fire_at TEXT NOT NULL,
+    os_notification_id TEXT,
+    delivered INTEGER NOT NULL DEFAULT 0
+  )`,
+  `CREATE INDEX IF NOT EXISTS planned_notifications_slot_id_idx ON planned_notifications (schedule_slot_id)`,
+  `CREATE TABLE IF NOT EXISTS scheduling_preferences (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    quiet_hours_start TEXT,
+    quiet_hours_end TEXT,
+    max_notifications_per_day INTEGER NOT NULL,
+    min_hours_between_routines INTEGER NOT NULL,
+    min_hours_same_muscle INTEGER NOT NULL,
+    updated_at TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS postpone_counters (
+    date TEXT NOT NULL,
+    schedule_slot_id TEXT NOT NULL,
+    count INTEGER NOT NULL DEFAULT 0
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS postpone_counters_date_slot_unique ON postpone_counters (date, schedule_slot_id)`,
   `CREATE TABLE IF NOT EXISTS catalog_manifest_state (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     version INTEGER NOT NULL,
