@@ -1,6 +1,8 @@
 # Plan técnico · F04 Programación y recordatorios
 
 > Generado por `arquitecto` a partir de `spec.md` (MVP 1.0, aprobado). Cubre el hito **H2** junto con `specs/F03-editor-rutinas/plan.md`, del que depende parcialmente (ver §1). No se inicia la implementación sin aprobación del usuario de este `plan.md` y de `tasks.md` (regla de `CLAUDE.md`).
+>
+> **Estado: ejecutado y cerrado el 2026-09-24** (ver `tasks.md`, CHANGELOG.md §H2, PR #4).
 
 ## 1. Resumen de la solución
 

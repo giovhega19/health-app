@@ -3,6 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Versión | MVP 1.0 |
+| Estado | Aprobado — implementado y cerrado el 2026-09-24 (hito H2, PR #4) |
 | RF | RF-04.01 … RF-04.07 |
 | Reglas | RN-07, RN-13, RN-15, RN-16 |
 | Módulos | `features/scheduling`; puerto `NotificationScheduler` → expo-notifications |

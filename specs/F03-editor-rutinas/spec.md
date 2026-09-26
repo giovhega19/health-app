@@ -3,6 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Versión | MVP 1.0 |
+| Estado | Aprobado — implementado y cerrado el 2026-09-24 (hito H2, PR #4) |
 | RF | RF-03.01 … RF-03.09 |
 | Reglas | RN-05, RN-06, RN-07 |
 | Módulos | `features/routines`, `packages/routine-schema` |

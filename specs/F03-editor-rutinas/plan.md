@@ -1,6 +1,8 @@
 # Plan técnico · F03 Creación, edición e importación de rutinas
 
 > Generado por `arquitecto` a partir de `spec.md` (MVP 1.0, aprobado). Cubre el hito **H2** junto con `specs/F04-programacion-recordatorios/plan.md`. No se inicia la implementación sin aprobación del usuario de este `plan.md` y de `tasks.md` (regla de `CLAUDE.md`). H1 (F01/F02) está cerrado y mergeado a `main`; este plan reutiliza sin romper nada de lo ya construido (Art. 9.1).
+>
+> **Estado: ejecutado y cerrado el 2026-09-24** (ver `tasks.md`, CHANGELOG.md §H2, PR #4).
 
 ## 1. Resumen de la solución
 
